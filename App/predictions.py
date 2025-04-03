@@ -31,8 +31,8 @@ def show_predictions_page(df):
 
         
         # Load model and encoder
-        model = joblib.load("C:/Users/Admin/Documents/CT/school/PF/Models/best_gb_model.pkl")
-        encoder = joblib.load("C:/Users/Admin/Documents/CT/school/PF/Models/encoder.pkl")
+        model = joblib.load("https://github.com/Nyasoko/Final-Thesis/blob/main/Models/best_gb_model.pkl")
+        encoder = joblib.load("https://github.com/Nyasoko/Final-Thesis/blob/main/Models/encoder.pkl")
         
         # Get valid categorical values from the encoder
         valid_counties = encoder.categories_[0]
