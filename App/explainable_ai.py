@@ -35,8 +35,8 @@ def show_explainable_ai_page(df):
     with content_col:
         # Load model and encoder
         try:
-            model = joblib.load("C:/Users/Admin/Documents/CT/school/PF/Models/best_gb_model.pkl")
-            encoder = joblib.load("C:/Users/Admin/Documents/CT/school/PF/Models/encoder.pkl")
+            model = joblib.load("https://github.com/Nyasoko/Final-Thesis/blob/main/Models/best_gb_model.pkl")
+            encoder = joblib.load("https://github.com/Nyasoko/Final-Thesis/blob/main/Models/encoder.pkl")
             
             # Create tabs for different explanation approaches
             tab1, tab2, tab3 = st.tabs(["Feature Importance", "SHAP Values", "What-If Analysis"])
