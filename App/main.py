@@ -74,7 +74,7 @@ st.markdown("""
 # Load Data
 @st.cache_data
 def load_data():
-    df = pd.read_csv("C:/Users/Admin/Documents/CT/school/PF/Data/historical_data.csv")
+    df = pd.read_csv("https://drive.google.com/file/d/1Oj2n3_DcJVk7q6Cn0v2TNamgP9unnUpi/view?usp=drive_link")
     # Drop 'Unnamed: 0' column if it exists
     if 'Unnamed: 0' in df.columns:
         df = df.drop('Unnamed: 0', axis=1)
