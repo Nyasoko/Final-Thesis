@@ -1,0 +1,6 @@
+venv/
+*__pycache__
+Models/
+Data/historical_data.csv
+Data/dispensed_data.csv
+.qodo
