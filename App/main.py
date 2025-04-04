@@ -9,8 +9,6 @@ from home import show_home_page
 from visualizations import show_visualizations_page
 from predictions import show_predictions_page
 from explainable_ai import show_explainable_ai_page
-pip install --upgrade scikit-learn
-pip uninstall numpy scikit-learn
 pip install numpy==1.23.5 scikit-learn==1.0.2
 
 
