@@ -4,8 +4,6 @@ import pandas as pd
 
 # Import page modules
 from home import show_home_page
-#from numpy import ComplexWarning
-#from numpy.core import ComplexWarning
 try:
     from numpy.core import ComplexWarning
 except ImportError:
