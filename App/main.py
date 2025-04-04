@@ -4,12 +4,10 @@ import pandas as pd
 
 # Import page modules
 from home import show_home_page
-try:
-    from numpy.core import ComplexWarning
-except ImportError:
-    # Define your own version or just continue without it
-    class ComplexWarning(Warning):
-        pass
+
+# Remove the import statement entirely if ComplexWarning is not used
+pip install numpy==1.21.6
+
 from visualizations import show_visualizations_page
 from predictions import show_predictions_page
 from explainable_ai import show_explainable_ai_page
