@@ -4,6 +4,7 @@ import pandas as pd
 
 # Import page modules
 from home import show_home_page
+from numpy import ComplexWarning
 from visualizations import show_visualizations_page
 from predictions import show_predictions_page
 from explainable_ai import show_explainable_ai_page
