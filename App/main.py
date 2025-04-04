@@ -4,14 +4,9 @@ import pandas as pd
 
 # Import page modules
 from home import show_home_page
-
-# Remove the import statement entirely if ComplexWarning is not used
 from visualizations import show_visualizations_page
 from predictions import show_predictions_page
 from explainable_ai import show_explainable_ai_page
-pip install numpy==1.23.5 scikit-learn==1.0.2
-
-
 
 # Set page configuration to wide mode
 st.set_page_config(
@@ -79,7 +74,8 @@ st.markdown("""
 # Load Data
 @st.cache_data
 def load_data():
-    df = pd.read_csv("https://drive.google.com/file/d/1Oj2n3_DcJVk7q6Cn0v2TNamgP9unnUpi/view?usp=drive_link")
+    # Use pandas to read the CSV directly from the URL
+    df = pd.read_csv("https://drive.google.com/uc?id=1Oj2n3_DcJVk7q6Cn0v2TNamgP9unnUpi")
     # Drop 'Unnamed: 0' column if it exists
     if 'Unnamed: 0' in df.columns:
         df = df.drop('Unnamed: 0', axis=1)
@@ -123,8 +119,8 @@ with st.sidebar:
             "icon": {"color": "orange", "font-size": "18px"}, 
             "nav-link": {"color": "white", "font-size": "16px", "text-align": "left", "margin":"0px"},
             "nav-link-selected": {"background-color": "#4CAF50"},
-            "menu-title": {"color": "white"},  # Make menu title text white
-            "menu-icon": {"color": "white"},   # Make menu icon white
+            "menu-title": {"color": "white"},
+            "menu-icon": {"color": "white"},
         }
     )
     
