@@ -17,7 +17,7 @@ st.set_page_config(
 
 # Apply custom CSS styling
 def load_css():
-    with open("styles.css") as f:
+    with open("App/styles.css") as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 # Try to load CSS, create default if file doesn't exist
