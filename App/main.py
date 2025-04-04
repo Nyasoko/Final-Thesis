@@ -10,6 +10,8 @@ pip install --upgrade numpy
 from visualizations import show_visualizations_page
 from predictions import show_predictions_page
 from explainable_ai import show_explainable_ai_page
+pip install --upgrade scikit-learn
+
 
 # Set page configuration to wide mode
 st.set_page_config(
