@@ -5,7 +5,13 @@ import pandas as pd
 # Import page modules
 from home import show_home_page
 #from numpy import ComplexWarning
-from numpy.core import ComplexWarning
+#from numpy.core import ComplexWarning
+try:
+    from numpy.core import ComplexWarning
+except ImportError:
+    # Define your own version or just continue without it
+    class ComplexWarning(Warning):
+        pass
 from visualizations import show_visualizations_page
 from predictions import show_predictions_page
 from explainable_ai import show_explainable_ai_page
