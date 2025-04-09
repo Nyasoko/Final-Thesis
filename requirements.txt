@@ -20,7 +20,8 @@ MarkupSafe==3.0.2
 matplotlib==3.10.1
 narwhals==1.33.0
 #numpy==1.23.5  # Specify a version
-numpy>=1.26.0,<2.0.0
+#numpy>=1.26.0,<2.0.0
+numpy<2
 packaging==24.2
 pandas
 pillow==11.1.0
