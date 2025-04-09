@@ -118,7 +118,7 @@ def show_feature_importance(model, df):
         
         st.markdown(f"""
         <div style="background-color: #e3f2fd; padding: 2px; border-radius: 8px; margin: 5px 0; border-left: 4px solid #2196F3;">
-            <p style="margin: 0;"><span style="font-size: 20px;">💡</span> <strong>Key Insight:</strong> The top {len(top_features)} most influential features are: <strong>{', '.join(top_features)}</strong>. These features have the largest impact on predicted demand.</p>
+            <p style="margin: 0;"><span style="font-size: 20px;"> </span> <strong>Key Insight:</strong> The top {len(top_features)} most influential features are: <strong>{', '.join(top_features)}</strong>. These features have the largest impact on predicted demand.</p>
         </div>
         """, unsafe_allow_html=True)
         
