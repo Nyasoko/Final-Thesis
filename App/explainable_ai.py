@@ -19,7 +19,7 @@ def show_explainable_ai_page(df):
     # Apply custom header with gradient background
     st.markdown("""
     <div style="background: linear-gradient(to right, #00b09b, #96c93d); padding: 2px; border-radius: 10px; margin-bottom: 5px;">
-        <h1 style="color: white; text-align: center;">🧠 Explainable AI - Understanding Predictions</h1>
+        <h1 style="color: white; text-align: center;"> Explainable AI - Understanding Predictions</h1>
     </div>
     """, unsafe_allow_html=True)
     
