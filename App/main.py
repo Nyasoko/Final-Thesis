@@ -1,6 +1,7 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
 import pandas as pd
+import gdown
 
 # Import page modules
 from home import show_home_page
@@ -75,7 +76,14 @@ st.markdown("""
 @st.cache_data
 def load_data():
     # Use pandas to read the CSV directly from the URL
-    df = pd.read_csv("https://drive.google.com/uc?id=1Oj2n3_DcJVk7q6Cn0v2TNamgP9unnUpi")
+    file_id = "1Oj2n3_DcJVk7q6Cn0v2TNamgP9unnUpi"
+    url = f"https://drive.google.com/uc?id={file_id}"
+    output = "downloaded_file.csv"
+    gdown.download(url, output, quiet=False)
+
+    # Read the CSV file
+    df = pd.read_csv(output)
+      
     # Drop 'Unnamed: 0' column if it exists
     if 'Unnamed: 0' in df.columns:
         df = df.drop('Unnamed: 0', axis=1)
