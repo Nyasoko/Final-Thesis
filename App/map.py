@@ -8,10 +8,6 @@ import pandas as pd
 def render_map(df):
     """
     Renders a choropleth map of Kenya counties with health commodity distribution data
-    using Folium, with commodity type filters on the right side.
-    
-    Parameters:
-    df (pandas.DataFrame): Dataset containing county-level distribution data
     """
     
     # Create a layout with map on the left and checkboxes on the right
@@ -24,12 +20,12 @@ def render_map(df):
     with col2:
         st.write("**Filter by Commodity:**")
         
-        # Create a dictionary to hold checkbox states, defaulting to all True
+        # Create a dictionary to hold checkbox states
         selected_commodities = {}
         for commodity in unique_commodities:
             selected_commodities[commodity] = st.checkbox(
                 commodity, 
-                value=True,  # Default all selected
+                value=True,
                 key=f"map_commodity_{commodity}"
             )
         
@@ -48,15 +44,24 @@ def render_map(df):
     # In the left column, render the map
     with col1:
         try:
+            # Force Streamlit to allocate proper height for map container
+            st.markdown("""
+            <style>
+            [data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"] {
+                min-height: 600px;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+            
+            # Load GeoJSON file
             with open("Data/kenya.geojson", "r", encoding="utf-8") as f:
                 kenya_geo = json.load(f)
 
-            # Aggregate data by county based on filtered commodities
+            # Aggregate data by county
             data = filtered_df.groupby("county_name")["value"].sum().reset_index()
-           
             data["county"] = data["county_name"].str.replace(" County", "", case=False).str.upper()
            
-            # Add county name mappings for inconsistencies between dataset and GeoJSON
+            # County name mappings
             county_mapping = {
                 "ELEGEYO-MARAKWET": "ELGEYO MARAKWET",
                 "MURANG'A": "MURANGA",
@@ -68,27 +73,29 @@ def render_map(df):
             min_value = data["value"].min() if not data.empty else 0
             max_value = data["value"].max() if not data.empty else 100
            
+            # Create the base map with explicit tile provider
+            m = folium.Map(
+                location=[0.0236, 37.9062], 
+                zoom_start=6, 
+                tiles="CartoDB positron",
+                attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            )
+            
+            # Create color scale
             colors = ['#ffffb2', '#fecc5c', '#fd8d3c', '#f03b20', '#bd0026']
             color_scale = cm.LinearColormap(colors, vmin=min_value, vmax=max_value)
            
-            m = folium.Map(location=[0.0236, 37.9062], zoom_start=6, tiles="cartodbpositron")
-           
+            # Style functions
             def style_function(feature):
                 county_name = feature["properties"].get("COUNTY_NAM", "")
-               
                 if county_name is None:
                     county_name = ""
-                   
                 county_name = county_name.upper()
                 if county_name in county_mapping:
                     county_name = county_mapping[county_name]
-               
                 value = value_dict.get(county_name, 0)
-               
-                color = color_scale(value)
-               
                 return {
-                    'fillColor': color,
+                    'fillColor': color_scale(value),
                     'color': 'black',
                     'weight': 1,
                     'fillOpacity': 0.7
@@ -101,43 +108,45 @@ def render_map(df):
                     'dashArray': '',
                     'fillOpacity': 0.9
                 }
-           
-            def tooltip_function(feature):
-                county_name = feature["properties"].get("COUNTY_NAM", "Unknown")
-               
-                if county_name is None:
-                    county_name = "Unknown"
-                    county_name_upper = ""
-                else:
-                    county_name_upper = county_name.upper()
-               
-                if county_name_upper in county_mapping:
-                    county_name_upper = county_mapping[county_name_upper]
-               
-                value = value_dict.get(county_name_upper, 0)
-               
-                return f"{county_name}: {value:,.0f}"
-           
+            
+            # Add GeoJSON layer
+            tooltip = folium.GeoJsonTooltip(
+                fields=["COUNTY_NAM"],
+                aliases=["County:"],
+                localize=True,
+                sticky=True,
+                style=("background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;")
+            )
+            
             folium.GeoJson(
                 kenya_geo,
                 style_function=style_function,
                 highlight_function=highlight_function,
-                tooltip=folium.GeoJsonTooltip(
-                    fields=["COUNTY_NAM"],
-                    aliases=["County:"],
-                    localize=True,
-                    sticky=True,
-                )
+                tooltip=tooltip,
+                name="Kenya Counties"
             ).add_to(m)
            
+            # Add color scale
             color_scale.caption = 'Total Units Dispensed'
             m.add_child(color_scale)
-           
-            # Display the map using streamlit-folium with responsive width
-            # This is the key change: using 100% width instead of fixed 700px
-            st_folium(m, width="100%", height=550, returned_objects=[])
+            
+            # Ensure map renders properly with explicit iframe HTML
+            map_html = m._repr_html_()
+            
+            # Use streamlit_folium with explicit height and width
+            map_data = st_folium(
+                m, 
+                width="100%",
+                height=600,
+                returned_objects=[],
+                feature_group_to_add=None,
+                add_marker_cluster=False,
+                center_on_user_location=False
+            )
             
         except FileNotFoundError:
             st.error("❌ Error: Kenya GeoJSON file not found. Please make sure 'kenya.geojson' is in the Data directory.")
             st.info("📝 Note: You need to place the Kenya counties GeoJSON file in the Data directory. The file should be named 'kenya.geojson'.")
-
+        except Exception as e:
+            st.error(f"❌ Error rendering map: {str(e)}")
+            st.info("Try refreshing the page or check console for more details.")
