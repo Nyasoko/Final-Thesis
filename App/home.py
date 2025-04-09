@@ -1,5 +1,5 @@
 import streamlit as st
-from map import render_map
+from app.map import render_map
 
 def show_home_page(df):
     """
