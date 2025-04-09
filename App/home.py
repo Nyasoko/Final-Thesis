@@ -8,6 +8,33 @@ def show_home_page(df):
     Parameters:
     df (pandas.DataFrame): The dataset to visualize
     """
+    # Apply custom CSS for map rendering and layout fixes
+    st.markdown("""
+    <style>
+    /* Fix for map container display */
+    .leaflet-container {
+        width: 100% !important;
+        height: 550px !important;
+        z-index: 0 !important;
+    }
+    
+    /* Ensure streamlit elements don't overlap */
+    .stApp .element-container:has(.stHeading) {
+        margin-bottom: 0 !important;
+    }
+    
+    /* Ensure map wrapper has proper dimensions */
+    .element-container iframe {
+        width: 100% !important;
+    }
+    
+    /* Add rounded corners to the map */
+    .st-emotion-cache-r421ms {
+        border-radius: 0.5rem;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     # Apply custom header with gradient background
     st.markdown("""
     <div style="background: linear-gradient(to right, #4b6cb7, #182848); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
@@ -46,21 +73,10 @@ def show_home_page(df):
     </div>
     """, unsafe_allow_html=True)
     
-    # Add styles to ensure map visibility
-    st.markdown("""
-    <style>
-    .leaflet-container {
-        height: 500px !important;
-        width: 100% !important;
-        z-index: 0;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
     # Geographic Distribution section with the map
     st.markdown("<h2>Geographic Distribution</h2>", unsafe_allow_html=True)
     
-    # Render the map directly (without additional containers)
+    # Render the map - moving CSS above ensures this displays correctly
     render_map(df)
     
     # Add footer with info
