@@ -4,7 +4,8 @@ import pandas as pd
 import gdown  
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
 
 # Import page modules
 from home import show_home_page
