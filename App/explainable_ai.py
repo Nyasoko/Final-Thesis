@@ -198,7 +198,7 @@ def show_shap_analysis(model, encoder, df):
             # Display prediction
             st.markdown(f"""
             <div style="background-color: #e8f5e9; padding: 2px; border-radius: 8px; margin: 5px 0; border-left: 4px solid #4CAF50;">
-                <p style="margin: 0;"><span style="font-size: 20px;">🎯</span> <strong>Predicted Demand:</strong> {prediction:.2f} units</p>
+                <p style="margin: 0;"><span style="font-size: 20px;"> </span> <strong>Predicted Demand:</strong> {prediction:.2f} units</p>
             </div>
             """, unsafe_allow_html=True)
             
@@ -469,7 +469,7 @@ def show_what_if_analysis(model, encoder, df):
         # Add explanation
         st.markdown(f"""
         <div style="background-color: #e3f2fd; padding: 2px; border-radius: 8px; margin: 5px 0; border-left: 4px solid #2196F3;">
-            <p style="margin: 0;"><span style="font-size: 20px;">💡</span> <strong>Insight:</strong> The chart above shows how the predicted demand changes when you vary the {sensitivity_feature} value while keeping all other inputs constant. The steeper the line, the more sensitive the model is to this feature.</p>
+            <p style="margin: 0;"><span style="font-size: 20px;"> </span> <strong>Insight:</strong> The chart above shows how the predicted demand changes when you vary the {sensitivity_feature} value while keeping all other inputs constant. The steeper the line, the more sensitive the model is to this feature.</p>
         </div>
         """, unsafe_allow_html=True)
         
