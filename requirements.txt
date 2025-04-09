@@ -55,5 +55,5 @@ branca==0.7.0
 shap==0.44.1
 setuptools 
 gdown 
-joblib==1.0.1
+joblib
 
