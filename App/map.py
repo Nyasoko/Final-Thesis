@@ -48,7 +48,7 @@ def render_map(df):
     # In the left column, render the map
     with col1:
         try:
-            with open("https://raw.githubusercontent.com/Nyasoko/Final-Thesis/refs/heads/main/Data/kenya.geojson") as f:
+            with open("Data/kenya.geojson", "r", encoding="utf-8") as f:
                 kenya_geo = json.load(f)
 
             # Aggregate data by county based on filtered commodities
