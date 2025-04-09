@@ -57,8 +57,8 @@ def show_predictions_page(df):
             return  # If downloading fails, exit early
         
         # Load the model using joblib
-        model = pickle.load(model_path)
-        encoder = pickle.load(encoder_path)
+        model = joblib.load(model_path)
+        encoder = joblib.load(encoder_path)
         
         # Get valid categorical values from the encoder
         valid_counties = encoder.categories_[0]
