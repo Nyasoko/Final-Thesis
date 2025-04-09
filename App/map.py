@@ -4,7 +4,6 @@ import json
 import branca.colormap as cm
 from streamlit_folium import st_folium
 import pandas as pd
-import os
 
 def render_map(df):
     """
@@ -43,54 +42,17 @@ def render_map(df):
         else:
             st.info(f"Showing {len(commodities_to_show)} of {len(unique_commodities)} commodities")
     
-    # Add safety check for no selection
-    if not commodities_to_show:
-        st.warning("⚠️ Please select at least one commodity to display on the map.")
-        return
-    
     # Filter data based on selected commodities
     filtered_df = df[df["dataelement_name"].isin(commodities_to_show)]
     
     # In the left column, render the map
     with col1:
-        # Debug information about file paths
-        st.write("Searching for GeoJSON file...")
-        # List possible file paths to try
-        possible_paths = [
-            "Data/kenya.geojson",
-            "kenya.geojson",
-            "./kenya.geojson",
-            "./Data/kenya.geojson",
-            "../Data/kenya.geojson"
-        ]
-        
-        # Try to find the file
-        geojson_path = None
-        for path in possible_paths:
-            if os.path.exists(path):
-                geojson_path = path
-                st.success(f"Found GeoJSON at: {path}")
-                break
-        
-        if not geojson_path:
-            st.error("❌ Error: Kenya GeoJSON file not found. Please make sure 'kenya.geojson' is in one of these locations:")
-            for path in possible_paths:
-                st.write(f"- {path}")
-            st.info("📝 Note: You need to place the Kenya counties GeoJSON file in the correct directory.")
-            return
-            
         try:
-            with open(geojson_path, "r", encoding="utf-8") as f:
+            with open("Data/kenya.geojson", "r", encoding="utf-8") as f:
                 kenya_geo = json.load(f)
-                
-            # Print some debug info
-            st.write(f"GeoJSON loaded successfully with {len(kenya_geo.get('features', []))} county features")
 
             # Aggregate data by county based on filtered commodities
             data = filtered_df.groupby("county_name")["value"].sum().reset_index()
-            
-            # Debug info for data
-            st.write(f"Data aggregated: {len(data)} counties with data")
            
             data["county"] = data["county_name"].str.replace(" County", "", case=False).str.upper()
            
@@ -100,15 +62,11 @@ def render_map(df):
                 "MURANG'A": "MURANGA",
                 "THARAKA - NITHI": "THARAKA NITHI"
             }
-            
-            # Create a mapping dictionary with debug info
+           
             value_dict = dict(zip(data["county"], data["value"]))
-            st.write(f"Counties in dataset: {list(value_dict.keys())[:5]}... (showing first 5)")
            
             min_value = data["value"].min() if not data.empty else 0
             max_value = data["value"].max() if not data.empty else 100
-            
-            st.write(f"Value range: {min_value} to {max_value}")
            
             colors = ['#ffffb2', '#fecc5c', '#fd8d3c', '#f03b20', '#bd0026']
             color_scale = cm.LinearColormap(colors, vmin=min_value, vmax=max_value)
@@ -144,10 +102,24 @@ def render_map(df):
                     'fillOpacity': 0.9
                 }
            
-            # Remove the custom tooltip function and use the built-in GeoJsonTooltip
+            def tooltip_function(feature):
+                county_name = feature["properties"].get("COUNTY_NAM", "Unknown")
+               
+                if county_name is None:
+                    county_name = "Unknown"
+                    county_name_upper = ""
+                else:
+                    county_name_upper = county_name.upper()
+               
+                if county_name_upper in county_mapping:
+                    county_name_upper = county_mapping[county_name_upper]
+               
+                value = value_dict.get(county_name_upper, 0)
+               
+                return f"{county_name}: {value:,.0f}"
+           
             folium.GeoJson(
                 kenya_geo,
-                name="Kenya Counties",
                 style_function=style_function,
                 highlight_function=highlight_function,
                 tooltip=folium.GeoJsonTooltip(
@@ -155,56 +127,15 @@ def render_map(df):
                     aliases=["County:"],
                     localize=True,
                     sticky=True,
-                    labels=True,
                 )
             ).add_to(m)
            
-            # Add the color scale legend to the map
             color_scale.caption = 'Total Units Dispensed'
             m.add_child(color_scale)
-            
-            # Remove debug info before final display
-            for key in st.session_state.keys():
-                if key.startswith('debug_'):
-                    del st.session_state[key]
-            
-            # Clear the temporary debug messages
-            st.empty()
            
-            # Display the map using streamlit-folium with specific width and height
-            st_data = st_folium(
-                m, 
-                width=700, 
-                height=600,
-                returned_objects=["last_object_clicked", "last_clicked"]
-            )
+            # Display the map using streamlit-folium
+            st_folium(m, width=700, height=600)
             
-            # Display click information if available
-            if st_data["last_object_clicked"]:
-                st.write("Clicked:", st_data["last_object_clicked"])
-            
-        except FileNotFoundError as e:
-            st.error(f"❌ Error: GeoJSON file not found: {str(e)}")
-            st.info("📝 Note: You need to place the Kenya counties GeoJSON file in the project directory.")
-        except json.JSONDecodeError as e:
-            st.error(f"❌ Error: Invalid GeoJSON format: {str(e)}")
-            st.info("📝 Ensure your GeoJSON file is properly formatted.")
-        except Exception as e:
-            st.error(f"❌ Unexpected error: {str(e)}")
-            import traceback
-            st.code(traceback.format_exc(), language="python")
-            
-# For demonstration - you would normally call this function with your actual data
-# Add this to your main app file to test the function with sample data
-def create_sample_data():
-    """Create sample data for testing"""
-    data = {
-        "county_name": ["Nairobi County", "Mombasa County", "Kisumu County"] * 3,
-        "dataelement_name": ["Medicine A", "Medicine B", "Medicine C"] * 3,
-        "value": [100, 200, 150, 300, 250, 180, 120, 220, 170]
-    }
-    return pd.DataFrame(data)
-
-# Uncomment this to test with sample data
-# sample_df = create_sample_data()
-# render_map(sample_df)
+        except FileNotFoundError:
+            st.error("❌ Error: Kenya GeoJSON file not found. Please make sure 'kenya.geojson' is in the same directory as the application.")
+            st.info("📝 Note: You need to place the Kenya counties GeoJSON file in the project directory. The file should be named 'kenya.geojson'.")
