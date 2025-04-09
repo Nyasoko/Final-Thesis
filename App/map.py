@@ -77,8 +77,7 @@ def render_map(df):
             m = folium.Map(
                 location=[0.0236, 37.9062], 
                 zoom_start=6, 
-                tiles="CartoDB positron",
-                attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                tiles="CartoDB positron"
             )
             
             # Create color scale
@@ -130,23 +129,15 @@ def render_map(df):
             color_scale.caption = 'Total Units Dispensed'
             m.add_child(color_scale)
             
-            # Ensure map renders properly with explicit iframe HTML
-            map_html = m._repr_html_()
-            
-            # Use streamlit_folium with explicit height and width
-            map_data = st_folium(
+            # Use streamlit_folium with only supported parameters
+            st_folium(
                 m, 
                 width="100%",
-                height=600,
-                returned_objects=[],
-                feature_group_to_add=None,
-                add_marker_cluster=False,
-                center_on_user_location=False
+                height=600
             )
             
         except FileNotFoundError:
             st.error("❌ Error: Kenya GeoJSON file not found. Please make sure 'kenya.geojson' is in the Data directory.")
-            st.info("📝 Note: You need to place the Kenya counties GeoJSON file in the Data directory. The file should be named 'kenya.geojson'.")
         except Exception as e:
             st.error(f"❌ Error rendering map: {str(e)}")
             st.info("Try refreshing the page or check console for more details.")
