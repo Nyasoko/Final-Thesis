@@ -3,7 +3,9 @@ import pandas as pd
 import plotly.express as px
 import joblib
 import requests
-from io import BytesIO
+from io import BytesIO 
+import pickle
+
 
 def download_file(url, filename):
     """
@@ -55,8 +57,8 @@ def show_predictions_page(df):
             return  # If downloading fails, exit early
         
         # Load the model using joblib
-        model = joblib.load(model_path)
-        encoder = joblib.load(encoder_path)
+        model = pickle.load(model_path)
+        encoder = pickle.load(encoder_path)
         
         # Get valid categorical values from the encoder
         valid_counties = encoder.categories_[0]
