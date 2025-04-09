@@ -91,7 +91,7 @@ def show_visualizations_page(df):
         st.markdown("""
         <div style="background-color: white; padding: 2px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 5px;">
             <h3 style="color: #2c3e50; border-bottom: 2px solid #FFA726; padding-bottom: 10px;">
-                <span style="font-size: 24px;">📦</span> Select Commodities to Compare
+                <span style="font-size: 24px;"> </span> Select Commodities to Compare
             </h3>
         """, unsafe_allow_html=True)
         
