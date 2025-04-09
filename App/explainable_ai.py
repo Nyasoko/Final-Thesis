@@ -5,7 +5,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import joblib
 import shap
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt 
+from pedictions import download_file 
 from utils import filter_data, calculate_lag_features
 
 def show_explainable_ai_page(df):
@@ -35,9 +36,21 @@ def show_explainable_ai_page(df):
     with content_col:
         # Load model and encoder
         try:
-            model = joblib.load("https://github.com/Nyasoko/Final-Thesis/blob/main/Models/best_gb_model.pkl")
-            encoder = joblib.load("https://github.com/Nyasoko/Final-Thesis/blob/main/Models/encoder.pkl")
-            
+            # URL of the model on GitHub
+            model_url = "https://github.com/Nyasoko/Final-Thesis/blob/main/Models/best_gb_model.pkl?raw=true"
+            encoder_url = "https://github.com/Nyasoko/Final-Thesis/blob/main/Models/encoder.pkl?raw=true"
+        
+            # Download the model and encoder files
+            model_path = download_file(model_url, "best_gb_model.pkl")
+            encoder_path = download_file(encoder_url, "encoder.pkl")
+        
+            if not model_path or not encoder_path:
+                return  # If downloading fails, exit early
+        
+            # Load the model using joblib
+            model = joblib.load(model_path)
+            encoder = joblib.load(encoder_path)
+                        
             # Create tabs for different explanation approaches
             tab1, tab2, tab3 = st.tabs(["Feature Importance", "SHAP Values", "What-If Analysis"])
             
