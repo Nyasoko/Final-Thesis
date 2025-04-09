@@ -46,32 +46,22 @@ def show_home_page(df):
     </div>
     """, unsafe_allow_html=True)
     
-    # Add some CSS to ensure proper map display
+    # Add styles to ensure map visibility
     st.markdown("""
     <style>
-    .map-container {
-        height: 600px !important; 
+    .leaflet-container {
+        height: 500px !important;
         width: 100% !important;
-        z-index: 1;
+        z-index: 0;
     }
     </style>
     """, unsafe_allow_html=True)
     
-    # Create a centered container with proper height for the map
-    st.markdown("""
-    <div style="background-color: white; padding: 5px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-    <h3 style="text-align: center; color: #2c3e50; padding: 10px;">Geographic Distribution</h3>
-    """, unsafe_allow_html=True)
+    # Geographic Distribution section with the map
+    st.markdown("<h2>Geographic Distribution</h2>", unsafe_allow_html=True)
     
-    col1, map_col, col2 = st.columns([0.05, 0.9, 0.05])
-    with map_col:
-        # Apply the map container class
-        st.markdown('<div class="map-container">', unsafe_allow_html=True)
-        # Render the map
-        render_map(df)
-        st.markdown('</div>', unsafe_allow_html=True)
-    
-    st.markdown("</div>", unsafe_allow_html=True)
+    # Render the map directly (without additional containers)
+    render_map(df)
     
     # Add footer with info
     st.markdown("""
