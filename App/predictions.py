@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import joblib
+import joblib 
+import requests
 
 def show_predictions_page(df):
     """
@@ -28,11 +29,30 @@ def show_predictions_page(df):
     col1, content_col, col2 = st.columns([0.05, 0.9, 0.05])
     
     with content_col:
-
+        # URL of the model on GitHub
+        model_url = "https://github.com/Nyasoko/Final-Thesis/blob/main/Models/best_gb_model.pkl?raw=true"
+        encoder_url = "https://github.com/Nyasoko/Final-Thesis/blob/main/Models/encoder.pkl?raw=true"
         
+        # Download the model
+        response = requests.get(model_url)
+        response_en = requests.get(encoder_url)
+        
+        # Save the model locally
+        model_path = "best_gb_model.pkl"
+        with open(model_path, 'wb') as f:
+            f.write(response.content)
+
+        encoder_path = "encoder.pkl"
+        with open(encoder_path, 'wb') as f:
+            f.write(response_en.content)
+        
+        # Load the model using joblib
+        model = joblib.load(model_path)
+        encoder = joblib.load(encoder_path)
+       
         # Load model and encoder
-        model = joblib.load("https://github.com/Nyasoko/Final-Thesis/blob/main/Models/best_gb_model.pkl")
-        encoder = joblib.load("https://github.com/Nyasoko/Final-Thesis/blob/main/Models/encoder.pkl")
+        # model = joblib.load("https://github.com/Nyasoko/Final-Thesis/blob/main/Models/best_gb_model.pkl")
+        # encoder = joblib.load("https://github.com/Nyasoko/Final-Thesis/blob/main/Models/encoder.pkl")
         
         # Get valid categorical values from the encoder
         valid_counties = encoder.categories_[0]
