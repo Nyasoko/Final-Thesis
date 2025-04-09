@@ -30,7 +30,7 @@ def show_predictions_page(df):
     # Apply custom header with gradient background
     st.markdown("""
     <div style="background: linear-gradient(to right, #00b09b, #96c93d); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-        <h1 style="color: white; text-align: center;">🔮 Health Commodity Demand Predictor</h1>
+        <h1 style="color: white; text-align: center;"> Health Commodity Demand Predictor</h1>
     </div>
     """, unsafe_allow_html=True)
     
@@ -166,7 +166,7 @@ def show_predictions_page(df):
         if not facility_commodity_df.empty:
             st.markdown("""
             <div style="background-color: #e3f2fd; padding: 2px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #2196F3;">
-                <p style="margin: 0;"><span style="font-size: 20px;">📊</span> Time series features have been auto-calculated based on historical data. You can adjust them if needed.</p>
+                <p style="margin: 0;"><span style="font-size: 20px;"> </span> Time series features have been auto-calculated based on historical data. You can adjust them if needed.</p>
             </div>
             """, unsafe_allow_html=True)
         else:
