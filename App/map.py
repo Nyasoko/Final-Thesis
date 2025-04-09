@@ -47,7 +47,7 @@ def render_map(df):
     
     # In the left column, render the map
     with col1:
-            try:
+        try:
             with open("Data/kenya.geojson", "r", encoding="utf-8") as f:
                 kenya_geo = json.load(f)
 
