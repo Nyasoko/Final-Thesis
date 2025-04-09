@@ -1,12 +1,26 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import joblib 
+import joblib
 import requests
+from io import BytesIO
+
+def download_file(url, filename):
+    """
+    Download a file from the given URL and save it locally.
+    """
+    response = requests.get(url)
+    if response.status_code == 200:
+        with open(filename, 'wb') as f:
+            f.write(response.content)
+        return filename
+    else:
+        st.error(f"Failed to download {filename} from {url}. HTTP Status code: {response.status_code}")
+        return None
 
 def show_predictions_page(df):
     """
-    Display the predictions page with model-based forecasting
+    Display the predictions page with model-based forecasting.
     
     Parameters:
     df (pandas.DataFrame): The dataset to use for predictions
@@ -33,26 +47,16 @@ def show_predictions_page(df):
         model_url = "https://github.com/Nyasoko/Final-Thesis/blob/main/Models/best_gb_model.pkl?raw=true"
         encoder_url = "https://github.com/Nyasoko/Final-Thesis/blob/main/Models/encoder.pkl?raw=true"
         
-        # Download the model
-        response = requests.get(model_url)
-        response_en = requests.get(encoder_url)
+        # Download the model and encoder files
+        model_path = download_file(model_url, "best_gb_model.pkl")
+        encoder_path = download_file(encoder_url, "encoder.pkl")
         
-        # Save the model locally
-        model_path = "best_gb_model.pkl"
-        with open(model_path, 'wb') as f:
-            f.write(response.content)
-
-        encoder_path = "encoder.pkl"
-        with open(encoder_path, 'wb') as f:
-            f.write(response_en.content)
+        if not model_path or not encoder_path:
+            return  # If downloading fails, exit early
         
         # Load the model using joblib
         model = joblib.load(model_path)
         encoder = joblib.load(encoder_path)
-       
-        # Load model and encoder
-        # model = joblib.load("https://github.com/Nyasoko/Final-Thesis/blob/main/Models/best_gb_model.pkl")
-        # encoder = joblib.load("https://github.com/Nyasoko/Final-Thesis/blob/main/Models/encoder.pkl")
         
         # Get valid categorical values from the encoder
         valid_counties = encoder.categories_[0]
