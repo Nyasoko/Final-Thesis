@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import joblib
 import shap
 import matplotlib.pyplot as plt 
-from pedictions import download_file 
+from predictions import download_file 
 from utils import filter_data, calculate_lag_features
 
 def show_explainable_ai_page(df):
