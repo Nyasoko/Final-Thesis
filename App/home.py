@@ -46,37 +46,32 @@ def show_home_page(df):
     </div>
     """, unsafe_allow_html=True)
     
-    # Map section with explicit height and styling
-    st.markdown("<h3 style='text-align: center; margin-bottom: 15px;'>Geographic Distribution Map</h3>", unsafe_allow_html=True)
+    # Add some CSS to ensure proper map display
+    st.markdown("""
+    <style>
+    .map-container {
+        height: 600px !important; 
+        width: 100% !important;
+        z-index: 1;
+    }
+    </style>
+    """, unsafe_allow_html=True)
     
-    # Create a container with fixed height for the map
-    map_container = st.container()
-    with map_container:
-        # Apply CSS to ensure the map is visible with appropriate dimensions
-        st.markdown("""
-        <style>
-        .map-container {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 10px;
-            margin-bottom: 20px;
-            height: 600px; /* Explicit height for map */
-        }
-        </style>
-        <div class="map-container">
-        """, unsafe_allow_html=True)
-        
-        # Debug statement before map rendering
-        st.write("Loading map visualization...")
-        
+    # Create a centered container with proper height for the map
+    st.markdown("""
+    <div style="background-color: white; padding: 5px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <h3 style="text-align: center; color: #2c3e50; padding: 10px;">Geographic Distribution</h3>
+    """, unsafe_allow_html=True)
+    
+    col1, map_col, col2 = st.columns([0.05, 0.9, 0.05])
+    with map_col:
+        # Apply the map container class
+        st.markdown('<div class="map-container">', unsafe_allow_html=True)
         # Render the map
         render_map(df)
-        
-        # Debug statement after map rendering
-        st.write("Map should be visible above. If not, check for errors in the console.")
-        
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    st.markdown("</div>", unsafe_allow_html=True)
     
     # Add footer with info
     st.markdown("""
