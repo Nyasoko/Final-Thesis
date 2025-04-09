@@ -49,10 +49,10 @@ def render_map(df):
     
     # In the left column, render the map
     with col1:
-                try:
+            try:
             with open(geojson_path, "r", encoding="utf-8") as f:
                 kenya_geo = json.load(f)
-        except Exception as e:
+            except Exception as e:
             st.error(f"❌ Error loading GeoJSON file: {str(e)}")
             st.info("Check file path and format of the GeoJSON file.")
 
