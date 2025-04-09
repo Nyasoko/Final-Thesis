@@ -4,8 +4,6 @@ import json
 import branca.colormap as cm
 from streamlit_folium import st_folium
 import pandas as pd
-import os
-geojson_path = os.path.join(os.path.dirname(__file__), "Data", "kenya.geojson")
 
 def render_map(df):
     """
@@ -50,11 +48,8 @@ def render_map(df):
     # In the left column, render the map
     with col1:
             try:
-            with open(geojson_path, "r", encoding="utf-8") as f:
+            with open("Data/kenya.geojson", "r", encoding="utf-8") as f:
                 kenya_geo = json.load(f)
-            except Exception as e:
-            st.error(f"❌ Error loading GeoJSON file: {str(e)}")
-            st.info("Check file path and format of the GeoJSON file.")
 
             # Aggregate data by county based on filtered commodities
             data = filtered_df.groupby("county_name")["value"].sum().reset_index()
