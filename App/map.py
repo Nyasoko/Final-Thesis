@@ -2,8 +2,8 @@ import streamlit as st
 import folium
 import json
 import branca.colormap as cm
-from streamlit_folium import st_folium
 import pandas as pd
+import streamlit.components.v1 as components
 
 def render_map(df):
     """
@@ -44,15 +44,6 @@ def render_map(df):
     # In the left column, render the map
     with col1:
         try:
-            # Force Streamlit to allocate proper height for map container
-            st.markdown("""
-            <style>
-            [data-testid="stVerticalBlock"] > [style*="flex-direction: column;"] > [data-testid="stVerticalBlock"] {
-                min-height: 600px;
-            }
-            </style>
-            """, unsafe_allow_html=True)
-            
             # Load GeoJSON file
             with open("Data/kenya.geojson", "r", encoding="utf-8") as f:
                 kenya_geo = json.load(f)
@@ -129,12 +120,11 @@ def render_map(df):
             color_scale.caption = 'Total Units Dispensed'
             m.add_child(color_scale)
             
-            # Use streamlit_folium with only supported parameters
-            st_folium(
-                m, 
-                width="100%",
-                height=600
-            )
+            # Get the HTML representation of the map
+            map_html = m._repr_html_()
+            
+            # Display the map using components.html instead of st_folium
+            components.html(map_html, height=600)
             
         except FileNotFoundError:
             st.error("❌ Error: Kenya GeoJSON file not found. Please make sure 'kenya.geojson' is in the Data directory.")
