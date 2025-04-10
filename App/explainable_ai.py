@@ -154,24 +154,23 @@ def show_shap_analysis(model, encoder, df):
             subcounties = sorted(filtered_df['sub_county_name'].unique())
             subcounty = st.selectbox("Sub-County", options=subcounties)
 
-       with col3:
+        with col3:
             filtered_df = df[df['sub_county_name'] == subcounty]
             wards = sorted(filtered_df['ward_name'].unique())
             ward = st.selectbox("Ward", options=wards)
         
-                
-        # Further filter by ward and commodity
+        # Further filter by facility and commodity
         loc_col1, loc_col2 = st.columns(2)
                 
         with loc_col1:
-            ward = st.selectbox("Ward", options=valid_wards)
-        ward_df = filtered_df[filtered_df["ward_name"] == ward]
-        valid_facilities = sorted(ward_df["facility_name"].unique())
+            ward_df = filtered_df[filtered_df["ward_name"] == ward]
+            valid_facilities = sorted(ward_df["facility_name"].unique())
+            facility = st.selectbox("Facility", options=valid_facilities)
 
         with loc_col2:
-            filtered_df = filtered_df[filtered_df['facility_name'] == facility]
-        commodities = sorted(filtered_df['dataelement_name'].unique())
-        commodity = st.selectbox("Commodity", options=commodities)
+            facility_df = ward_df[ward_df['facility_name'] == facility]
+            commodities = sorted(facility_df['dataelement_name'].unique())
+            commodity = st.selectbox("Commodity", options=commodities)
 
         # Row 2: Temporal features
         st.markdown("""
@@ -194,7 +193,7 @@ def show_shap_analysis(model, encoder, df):
             """, unsafe_allow_html=True)
        
         # Create sample data
-        filtered_df = filtered_df[filtered_df['dataelement_name'] == commodity]
+        filtered_df = facility_df[facility_df['dataelement_name'] == commodity]
         
         if not filtered_df.empty:
             # Get most recent data for time-based features
@@ -204,7 +203,7 @@ def show_shap_analysis(model, encoder, df):
             sample_data = pd.DataFrame([{
                 "county_name": county,
                 "sub_county_name": subcounty,
-                "ward_name": filtered_df['ward_name'].iloc[0],
+                "ward_name": ward,
                 "facility_name": facility,
                 "dataelement_name": commodity,
                 "month": month, 
@@ -506,4 +505,3 @@ def show_what_if_analysis(model, encoder, df):
         st.error(f"Error in what-if analysis: {str(e)}")
     
     st.markdown("</div>", unsafe_allow_html=True)  # Close the card container
-
