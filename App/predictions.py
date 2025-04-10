@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 import matplotlib.pyplot as plt
+import base64
 from pathlib import Path
 
 # Safe import of LightGBM with fallback
@@ -15,6 +16,30 @@ except ImportError:
 
 # Path to your model file
 MODEL_PATH = Path("./data/your_model.pkl")  # Update this path to your actual model location
+
+def download_file(data, filename, display_text=None):
+    """
+    Generate a download link for the provided data
+    
+    Parameters:
+    -----------
+    data : bytes or string
+        The data to be downloaded
+    filename : str
+        Name of the file to be downloaded
+    display_text : str, optional
+        Text to display on the download button
+    """
+    if display_text is None:
+        display_text = f"Download {filename}"
+    
+    # Convert data to bytes if it's not already
+    if isinstance(data, str):
+        data = data.encode()
+    
+    b64 = base64.b64encode(data).decode()
+    href = f'<a href="data:file/txt;base64,{b64}" download="{filename}">{display_text}</a>'
+    return st.markdown(href, unsafe_allow_html=True)
 
 def load_model():
     """Load the pre-trained model safely"""
@@ -42,6 +67,40 @@ def make_prediction(model, input_data):
     except Exception as e:
         st.error(f"Error making prediction: {str(e)}")
         return None
+
+def generate_feature_importance(model, feature_names):
+    """Generate feature importance if model supports it"""
+    try:
+        if hasattr(model, 'feature_importances_'):
+            importances = model.feature_importances_
+            indices = np.argsort(importances)[::-1]
+            
+            # Create a DataFrame for feature importance
+            importance_df = pd.DataFrame({
+                'Feature': [feature_names[i] for i in indices],
+                'Importance': importances[indices]
+            })
+            return importance_df
+        else:
+            return None
+    except Exception as e:
+        st.warning(f"Could not calculate feature importance: {str(e)}")
+        return None
+
+def export_prediction_results(input_data, prediction, format='csv'):
+    """Export prediction results to downloadable format"""
+    # Create a copy of input data
+    result = input_data.copy()
+    
+    # Add prediction to the dataframe
+    result['prediction'] = prediction
+    
+    if format.lower() == 'csv':
+        return result.to_csv(index=False).encode('utf-8')
+    elif format.lower() == 'json':
+        return result.to_json(orient='records').encode('utf-8')
+    else:
+        return result.to_csv(index=False).encode('utf-8')
 
 def show_predictions_page():
     """Display the predictions page in the Streamlit app"""
@@ -87,6 +146,32 @@ def show_predictions_page():
             fig, ax = plt.subplots()
             ax.bar(["Prediction"], prediction)
             st.pyplot(fig)
+            
+            # Generate feature importance
+            feature_names = input_data.columns.tolist()
+            importance_df = generate_feature_importance(model, feature_names)
+            
+            if importance_df is not None:
+                st.subheader("Feature Importance")
+                st.dataframe(importance_df)
+                
+                # Visualize feature importance
+                fig, ax = plt.subplots(figsize=(10, 6))
+                ax.barh(importance_df['Feature'], importance_df['Importance'])
+                ax.set_xlabel('Importance')
+                ax.set_title('Feature Importance')
+                st.pyplot(fig)
+            
+            # Export options
+            st.subheader("Export Results")
+            export_format = st.radio("Select export format:", ("CSV", "JSON"))
+            
+            export_data = export_prediction_results(input_data, prediction, export_format)
+            download_file(
+                export_data, 
+                f"prediction_results.{export_format.lower()}", 
+                f"Download results as {export_format}"
+            )
 
 # This allows testing this file directly
 if __name__ == "__main__":
