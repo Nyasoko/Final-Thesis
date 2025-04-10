@@ -163,6 +163,26 @@ def show_shap_analysis(model, encoder, df):
         filtered_df = filtered_df[filtered_df['facility_name'] == facility]
         commodities = sorted(filtered_df['dataelement_name'].unique())
         commodity = st.selectbox("Commodity", options=commodities)
+
+        # Row 2: Temporal features
+        st.markdown("""
+        <div style="background-color: #f1f8e9; padding: 2px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #4CAF50;">
+            <h4 style="color: #2c3e50; margin-top: 0;">Time Period Selection</h4>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        time_col1, time_col2, time_col3 = st.columns(3)
+        with time_col1:
+            month = st.number_input("Month", min_value=1, max_value=12, value=4)
+        with time_col2:
+            year = st.number_input("Year", min_value=2011, max_value=2030, value=2024)
+        with time_col3:
+            quarter = (month - 1) // 3 + 1
+            st.markdown(f"""
+            <div style="background-color: white; padding: 2px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-top: 23px;">
+                <p style="font-weight: bold; margin: 0;">Quarter: Q{quarter}</p>
+            </div>
+            """, unsafe_allow_html=True)
        
         # Create sample data
         filtered_df = filtered_df[filtered_df['dataelement_name'] == commodity]
@@ -178,9 +198,9 @@ def show_shap_analysis(model, encoder, df):
                 "ward_name": filtered_df['ward_name'].iloc[0],
                 "facility_name": facility,
                 "dataelement_name": commodity,
-                "month": 4,  # Example value
-                "year": 2024,  # Example value
-                "quarter": 2,  # Example value
+                "month": month, 
+                "year": year, 
+                "quarter": quarter,
                 "lag_1": lag_features["lag_1"],
                 "lag_3": lag_features["lag_3"],
                 "rolling_mean_3": lag_features["rolling_mean_3"]
