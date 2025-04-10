@@ -56,5 +56,6 @@ branca==0.7.0
 shap==0.44.1
 setuptools 
 gdown 
-joblib
+joblib 
+lightgbm>=3.3.5
 
