@@ -153,24 +153,25 @@ def show_shap_analysis(model, encoder, df):
             filtered_df = df[df['county_name'] == county]
             subcounties = sorted(filtered_df['sub_county_name'].unique())
             subcounty = st.selectbox("Sub-County", options=subcounties)
-            
-        with col3:
-            filtered_df = filtered_df[filtered_df['sub_county_name'] == subcounty]
-            facilities = sorted(filtered_df['facility_name'].unique())
-            facility = st.selectbox("Facility", options=facilities)
-            
+
+       with col3:
+            filtered_df = df[df['sub_county_name'] == subcounty]
+            wards = sorted(filtered_df['ward_name'].unique())
+            ward = st.selectbox("Ward", options=wards)
+        
+                
         # Further filter by ward and commodity
         loc_col1, loc_col2 = st.columns(2)
-
+                
         with loc_col1:
             ward = st.selectbox("Ward", options=valid_wards)
-            ward_df = subcounty_df[subcounty_df["ward_name"] == ward]
-            valid_facilities = sorted(ward_df["facility_name"].unique())
-        
+        ward_df = filtered_df[filtered_df["ward_name"] == ward]
+        valid_facilities = sorted(ward_df["facility_name"].unique())
+
         with loc_col2:
             filtered_df = filtered_df[filtered_df['facility_name'] == facility]
-            commodities = sorted(filtered_df['dataelement_name'].unique())
-            commodity = st.selectbox("Commodity", options=commodities)
+        commodities = sorted(filtered_df['dataelement_name'].unique())
+        commodity = st.selectbox("Commodity", options=commodities)
 
         # Row 2: Temporal features
         st.markdown("""
