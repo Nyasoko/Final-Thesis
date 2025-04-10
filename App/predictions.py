@@ -102,7 +102,7 @@ def export_prediction_results(input_data, prediction, format='csv'):
     else:
         return result.to_csv(index=False).encode('utf-8')
 
-def show_predictions_page():
+def show_predictions_page(df):
     """Display the predictions page in the Streamlit app"""
     st.title("Model Predictions")
     
@@ -110,6 +110,11 @@ def show_predictions_page():
     model = load_model()
     if model is None:
         st.stop()
+    
+    # Display dataframe info
+    st.subheader("Dataset Overview")
+    st.write(f"Dataset shape: {df.shape[0]} rows, {df.shape[1]} columns")
+    st.dataframe(df.head())
     
     # Create input form
     st.subheader("Input Parameters")
@@ -175,4 +180,10 @@ def show_predictions_page():
 
 # This allows testing this file directly
 if __name__ == "__main__":
-    show_predictions_page()
+    # Create a sample dataframe for testing
+    sample_df = pd.DataFrame({
+        'feature1': [1.0, 2.0, 3.0],
+        'feature2': [10.0, 20.0, 30.0],
+        'feature3': [0, 1, 2]
+    })
+    show_predictions_page(sample_df)
