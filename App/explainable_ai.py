@@ -163,7 +163,7 @@ def show_shap_analysis(model, encoder, df):
         filtered_df = filtered_df[filtered_df['facility_name'] == facility]
         commodities = sorted(filtered_df['dataelement_name'].unique())
         commodity = st.selectbox("Commodity", options=commodities)
-        
+       
         # Create sample data
         filtered_df = filtered_df[filtered_df['dataelement_name'] == commodity]
         
