@@ -159,10 +159,18 @@ def show_shap_analysis(model, encoder, df):
             facilities = sorted(filtered_df['facility_name'].unique())
             facility = st.selectbox("Facility", options=facilities)
             
-        # Further filter by commodity
-        filtered_df = filtered_df[filtered_df['facility_name'] == facility]
-        commodities = sorted(filtered_df['dataelement_name'].unique())
-        commodity = st.selectbox("Commodity", options=commodities)
+        # Further filter by ward and commodity
+        loc_col1, loc_col2 = st.columns(2)
+
+        with loc_col1:
+            ward = st.selectbox("Ward", options=valid_wards)
+            ward_df = subcounty_df[subcounty_df["ward_name"] == ward]
+            valid_facilities = sorted(ward_df["facility_name"].unique())
+        
+        with loc_col2:
+            filtered_df = filtered_df[filtered_df['facility_name'] == facility]
+            commodities = sorted(filtered_df['dataelement_name'].unique())
+            commodity = st.selectbox("Commodity", options=commodities)
 
         # Row 2: Temporal features
         st.markdown("""
