@@ -206,7 +206,7 @@ def show_predictions_page(df):
             
             st.markdown(f"""
             <div style="background-color: #e8f5e9; padding: 2px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin: 5px 0; text-align: center; border-left: 4px solid #4CAF50;">
-                <span style="font-size: 24px;">🎯</span>
+                <span style="font-size: 24px;"> </span>
                 <h2 style="margin: 10px 0; color: #2c3e50;">Predicted Demand</h2>
                 <p style="font-size: 32px; font-weight: bold; color: #4CAF50; margin: 10px 0;">{prediction:.2f} units</p>
             </div>
