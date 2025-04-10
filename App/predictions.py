@@ -1,115 +1,53 @@
-import pickle
+import streamlit as st
 import pandas as pd
 import numpy as np
-import streamlit as st
 import matplotlib.pyplot as plt
-import base64
+import pickle
+import os
 from pathlib import Path
 
-# Safe import of LightGBM with fallback
-try:
-    import lightgbm as lgb
-    LIGHTGBM_AVAILABLE = True
-except ImportError:
-    LIGHTGBM_AVAILABLE = False
-    st.warning("LightGBM not available. Some functionality may be limited.")
-
-# Path to your model file
-MODEL_PATH = Path("./data/your_model.pkl")  # Update this path to your actual model location
-
-def download_file(data, filename, display_text=None):
-    """
-    Generate a download link for the provided data
-    
-    Parameters:
-    -----------
-    data : bytes or string
-        The data to be downloaded
-    filename : str
-        Name of the file to be downloaded
-    display_text : str, optional
-        Text to display on the download button
-    """
-    if display_text is None:
-        display_text = f"Download {filename}"
-    
-    # Convert data to bytes if it's not already
-    if isinstance(data, str):
-        data = data.encode()
-    
-    b64 = base64.b64encode(data).decode()
-    href = f'<a href="data:file/txt;base64,{b64}" download="{filename}">{display_text}</a>'
-    return st.markdown(href, unsafe_allow_html=True)
-
 def load_model():
-    """Load the pre-trained model safely or create a dummy model if not found"""
+    """Load the trained model from file"""
+    model_path = Path("data/your_model.pkl")
+    
+    if not model_path.exists():
+        st.error(f"Model file not found at {model_path}. Please train a model first.")
+        return None
+        
     try:
-        with open(MODEL_PATH, "rb") as f:
+        with open(model_path, "rb") as f:
             model = pickle.load(f)
         return model
-    except FileNotFoundError:
-        st.warning(f"Model file not found at {MODEL_PATH}. Using a demo model instead.")
-        # Return a simple dummy model for demonstration
-        try:
-            from sklearn.ensemble import RandomForestRegressor
-            dummy_model = RandomForestRegressor()
-            # Fit with minimal data just to initialize
-            dummy_model.fit([[1, 2, 3]], [1])
-            return dummy_model
-        except ImportError:
-            st.error("Could not create dummy model. Please install scikit-learn.")
-            return None
     except Exception as e:
         st.error(f"Error loading model: {str(e)}")
         return None
 
 def make_prediction(model, input_data):
-    """Make predictions using the loaded model"""
-    if model is None:
-        return None
-    
+    """Make a prediction using the loaded model"""
     try:
-        # Convert input data to the format expected by your model
-        # This might need adjustment based on your specific model
         prediction = model.predict(input_data)
         return prediction
     except Exception as e:
-        st.error(f"Error making prediction: {str(e)}")
+        st.error(f"Prediction error: {str(e)}")
         return None
 
 def generate_feature_importance(model, feature_names):
-    """Generate feature importance if model supports it"""
+    """Generate feature importance DataFrame"""
     try:
+        # Check if model has feature_importances_ attribute
         if hasattr(model, 'feature_importances_'):
-            importances = model.feature_importances_
-            indices = np.argsort(importances)[::-1]
-            
-            # Create a DataFrame for feature importance
+            importance = model.feature_importances_
+            # Create DataFrame of features and their importance
             importance_df = pd.DataFrame({
-                'Feature': [feature_names[i] for i in indices],
-                'Importance': importances[indices]
+                'Feature': feature_names,
+                'Importance': importance
             })
-            return importance_df
+            return importance_df.sort_values('Importance', ascending=False)
         else:
             return None
     except Exception as e:
-        st.warning(f"Could not calculate feature importance: {str(e)}")
+        st.error(f"Error generating feature importance: {str(e)}")
         return None
-
-def export_prediction_results(input_data, prediction, format='csv'):
-    """Export prediction results to downloadable format"""
-    # Create a copy of input data
-    result = input_data.copy()
-    
-    # Add prediction to the dataframe
-    result['prediction'] = prediction
-    
-    if format.lower() == 'csv':
-        return result.to_csv(index=False).encode('utf-8')
-    elif format.lower() == 'json':
-        return result.to_json(orient='records').encode('utf-8')
-    else:
-        return result.to_csv(index=False).encode('utf-8')
 
 def show_predictions_page(df):
     """Display the predictions page in the Streamlit app"""
@@ -125,74 +63,138 @@ def show_predictions_page(df):
     st.write(f"Dataset shape: {df.shape[0]} rows, {df.shape[1]} columns")
     st.dataframe(df.head())
     
-    # Create input form
+    # Create input form with relevant features
     st.subheader("Input Parameters")
     
-    # Replace these with your actual model features
-    feature1 = st.slider("Feature 1", 0.0, 10.0, 5.0)
-    feature2 = st.slider("Feature 2", 0.0, 100.0, 50.0)
-    feature3 = st.selectbox("Feature 3", ["Option A", "Option B", "Option C"])
+    county = st.selectbox("County", sorted(df['county_name'].unique()))
     
-    # Convert categorical features if needed
-    if feature3 == "Option A":
-        feature3_encoded = 0
-    elif feature3 == "Option B":
-        feature3_encoded = 1
-    else:
-        feature3_encoded = 2
+    # Filter subsequent dropdowns based on previous selections
+    sub_counties = df[df['county_name']==county]['sub_county_name'].unique()
+    sub_county = st.selectbox("Sub County", sorted(sub_counties))
+    
+    wards = df[(df['county_name']==county) & 
+              (df['sub_county_name']==sub_county)]['ward_name'].unique()
+    ward = st.selectbox("Ward", sorted(wards))
+    
+    facilities = df[(df['county_name']==county) & 
+                   (df['sub_county_name']==sub_county) & 
+                   (df['ward_name']==ward)]['facility_name'].unique()
+    facility = st.selectbox("Health Facility", sorted(facilities))
+    
+    dataelement = st.selectbox("DMPA Type", sorted(df['dataelement_name'].unique()))
+    year = st.selectbox("Year", sorted(df['year'].unique()))
+    month = st.slider("Month", 1, 12, 1)
     
     # Create input data frame
     input_data = pd.DataFrame({
-        'feature1': [feature1],
-        'feature2': [feature2],
-        'feature3': [feature3_encoded]
+        'county_name': [county],
+        'sub_county_name': [sub_county],
+        'ward_name': [ward],
+        'facility_name': [facility],
+        'dataelement_name': [dataelement],
+        'month': [month],
+        'year': [year]
     })
+    
+    # One-hot encode the input data (must match the format used during training)
+    # Get all columns from the training data
+    training_columns = model.feature_names_in_
+    
+    # Create a DataFrame with zeros for all training columns
+    input_encoded = pd.DataFrame(0, index=[0], columns=training_columns)
+    
+    # Set the appropriate columns to 1 based on the input data
+    for feature in input_data.columns:
+        feature_value = input_data[feature].iloc[0]
+        feature_col = f"{feature}_{feature_value}"
+        if feature_col in training_columns:
+            input_encoded[feature_col] = 1
+        elif feature in ['month', 'year']:  # Numeric features
+            if feature in training_columns:
+                input_encoded[feature] = input_data[feature].iloc[0]
     
     # Make prediction button
     if st.button("Predict"):
-        prediction = make_prediction(model, input_data)
+        prediction = make_prediction(model, input_encoded)
         
         if prediction is not None:
-            st.success(f"Prediction: {prediction[0]:.4f}")
+            st.success(f"Predicted DMPA Value: {prediction[0]:.2f}")
             
             # Optional: Visualize the prediction
             st.subheader("Prediction Visualization")
             fig, ax = plt.subplots()
-            ax.bar(["Prediction"], prediction)
+            ax.bar(["Predicted Value"], prediction)
+            ax.set_ylabel("DMPA Value")
             st.pyplot(fig)
             
+            # Show historical data for context
+            historical_data = df[
+                (df['county_name'] == county) &
+                (df['sub_county_name'] == sub_county) &
+                (df['ward_name'] == ward) &
+                (df['facility_name'] == facility) &
+                (df['dataelement_name'] == dataelement)
+            ].sort_values(by=['year', 'month'])
+            
+            if not historical_data.empty:
+                st.subheader("Historical Data")
+                st.dataframe(historical_data)
+                
+                # Plot historical trend
+                if len(historical_data) > 1:
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    historical_data['date'] = pd.to_datetime(historical_data[['year', 'month']].assign(day=1))
+                    ax.plot(historical_data['date'], historical_data['value'], marker='o', linestyle='-')
+                    ax.set_title(f"Historical DMPA Values for {facility}")
+                    ax.set_xlabel("Date")
+                    ax.set_ylabel("Value")
+                    plt.xticks(rotation=45)
+                    st.pyplot(fig)
+            
             # Generate feature importance
-            feature_names = input_data.columns.tolist()
+            feature_names = input_encoded.columns.tolist()
             importance_df = generate_feature_importance(model, feature_names)
             
             if importance_df is not None:
                 st.subheader("Feature Importance")
-                st.dataframe(importance_df)
+                st.dataframe(importance_df.head(10))  # Show top 10 features
                 
-                # Visualize feature importance
+                # Visualize top 10 feature importance
                 fig, ax = plt.subplots(figsize=(10, 6))
-                ax.barh(importance_df['Feature'], importance_df['Importance'])
+                importance_df.head(10).plot.barh(x='Feature', y='Importance', ax=ax)
                 ax.set_xlabel('Importance')
-                ax.set_title('Feature Importance')
+                ax.set_title('Top 10 Feature Importance')
                 st.pyplot(fig)
             
             # Export options
             st.subheader("Export Results")
             export_format = st.radio("Select export format:", ("CSV", "JSON"))
             
-            export_data = export_prediction_results(input_data, prediction, export_format)
-            download_file(
-                export_data, 
-                f"prediction_results.{export_format.lower()}", 
-                f"Download results as {export_format}"
-            )
-
-# This allows testing this file directly
-if __name__ == "__main__":
-    # Create a sample dataframe for testing
-    sample_df = pd.DataFrame({
-        'feature1': [1.0, 2.0, 3.0],
-        'feature2': [10.0, 20.0, 30.0],
-        'feature3': [0, 1, 2]
-    })
-    show_predictions_page(sample_df)
+            if st.button("Export"):
+                result_df = pd.DataFrame({
+                    'county': [county],
+                    'sub_county': [sub_county],
+                    'ward': [ward],
+                    'facility': [facility],
+                    'dataelement': [dataelement],
+                    'month': [month],
+                    'year': [year],
+                    'predicted_value': [prediction[0]]
+                })
+                
+                if export_format == "CSV":
+                    csv = result_df.to_csv(index=False)
+                    st.download_button(
+                        label="Download CSV",
+                        data=csv,
+                        file_name="prediction_results.csv",
+                        mime="text/csv"
+                    )
+                else:
+                    json_str = result_df.to_json(orient="records")
+                    st.download_button(
+                        label="Download JSON",
+                        data=json_str,
+                        file_name="prediction_results.json",
+                        mime="application/json"
+                    )
