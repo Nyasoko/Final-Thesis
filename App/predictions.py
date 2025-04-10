@@ -6,6 +6,31 @@ import pickle
 import os
 from pathlib import Path
 
+def download_file(data, filename, file_format="csv"):
+    """
+    Create a download button for exporting data
+    
+    Args:
+        data: DataFrame to be downloaded
+        filename: Name for the downloaded file
+        file_format: Format for download (csv or json)
+    """
+    if file_format.lower() == "csv":
+        data_str = data.to_csv(index=False)
+        mime = "text/csv"
+        file_ext = "csv"
+    else:
+        data_str = data.to_json(orient="records")
+        mime = "application/json"
+        file_ext = "json"
+    
+    st.download_button(
+        label=f"Download {file_format.upper()}",
+        data=data_str,
+        file_name=f"{filename}.{file_ext}",
+        mime=mime
+    )
+
 def load_model():
     """Load the trained model from file"""
     model_path = Path("data/your_model.pkl")
@@ -182,19 +207,5 @@ def show_predictions_page(df):
                     'predicted_value': [prediction[0]]
                 })
                 
-                if export_format == "CSV":
-                    csv = result_df.to_csv(index=False)
-                    st.download_button(
-                        label="Download CSV",
-                        data=csv,
-                        file_name="prediction_results.csv",
-                        mime="text/csv"
-                    )
-                else:
-                    json_str = result_df.to_json(orient="records")
-                    st.download_button(
-                        label="Download JSON",
-                        data=json_str,
-                        file_name="prediction_results.json",
-                        mime="application/json"
-                    )
+                # Use the download_file function
+                download_file(result_df, "prediction_results", export_format.lower())
