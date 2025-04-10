@@ -42,14 +42,23 @@ def download_file(data, filename, display_text=None):
     return st.markdown(href, unsafe_allow_html=True)
 
 def load_model():
-    """Load the pre-trained model safely"""
+    """Load the pre-trained model safely or create a dummy model if not found"""
     try:
         with open(MODEL_PATH, "rb") as f:
             model = pickle.load(f)
         return model
     except FileNotFoundError:
-        st.error(f"Model file not found at {MODEL_PATH}")
-        return None
+        st.warning(f"Model file not found at {MODEL_PATH}. Using a demo model instead.")
+        # Return a simple dummy model for demonstration
+        try:
+            from sklearn.ensemble import RandomForestRegressor
+            dummy_model = RandomForestRegressor()
+            # Fit with minimal data just to initialize
+            dummy_model.fit([[1, 2, 3]], [1])
+            return dummy_model
+        except ImportError:
+            st.error("Could not create dummy model. Please install scikit-learn.")
+            return None
     except Exception as e:
         st.error(f"Error loading model: {str(e)}")
         return None
