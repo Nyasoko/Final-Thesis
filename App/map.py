@@ -61,6 +61,23 @@ def render_map(df):
            
             value_dict = dict(zip(data["county"], data["value"]))
            
+            # Add the value data to each feature in the GeoJSON
+            for feature in kenya_geo["features"]:
+                county_name = feature["properties"].get("COUNTY_NAM", "")
+                if county_name is None:
+                    county_name = ""
+                county_name = county_name.upper()
+                if county_name in county_mapping:
+                    mapped_county = county_mapping[county_name]
+                    value = value_dict.get(mapped_county, 0)
+                else:
+                    value = value_dict.get(county_name, 0)
+                
+                # Add value to feature properties for tooltip
+                feature["properties"]["TOTAL_UNITS"] = value
+                # Format the value with commas
+                feature["properties"]["FORMATTED_UNITS"] = f"{value:,.0f}"
+           
             min_value = data["value"].min() if not data.empty else 0
             max_value = data["value"].max() if not data.empty else 100
            
@@ -99,10 +116,10 @@ def render_map(df):
                     'fillOpacity': 0.9
                 }
             
-            # Add GeoJSON layer
+            # Add GeoJSON layer with enhanced tooltip
             tooltip = folium.GeoJsonTooltip(
-                fields=["COUNTY_NAM"],
-                aliases=["County:"],
+                fields=["COUNTY_NAM", "FORMATTED_UNITS"],
+                aliases=["County:", "Total Units:"],
                 localize=True,
                 sticky=True,
                 style=("background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;")
@@ -119,6 +136,12 @@ def render_map(df):
             # Add color scale
             color_scale.caption = 'Total Units Dispensed'
             m.add_child(color_scale)
+            
+            # Get the total value for display
+            total_value = filtered_df["value"].sum()
+            
+            # Display total units
+            st.markdown(f"**Total Units Dispensed Across All Counties: {total_value:,.0f}**")
             
             # Get the HTML representation of the map
             map_html = m._repr_html_()
